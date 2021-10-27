@@ -14,11 +14,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slashSpeed;
     [SerializeField] private float slashTime;
     [SerializeField] private float slashAmount;
+    [SerializeField] private float groundSlashBufferLength;
     private float currentSlashAmount;
     private float slashTimeCount;
+    private float groundSlashBufferCount;
     private Vector2 slashDirection;
     private string SLASH_STATE = "IDLE";
 
+    [SerializeField] private GameObject aimLine;
     private Rigidbody2D body;
     private SpriteRenderer sprite;
     private Animator animator;
@@ -33,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (SLASH_STATE != "SLASHING")
+        if (SLASH_STATE != "SLASH")
         {
             // horizontal movement
             int left = Input.GetKey(KeyCode.A) ? 1 : 0;
@@ -41,7 +44,6 @@ public class PlayerMovement : MonoBehaviour
             int direction = right - left;
 
             body.velocity = new Vector2(walkSpeed * direction, body.velocity.y);
-            sprite.flipX = body.velocity.x < 0;
             animator.SetFloat("Speed", Mathf.Abs(body.velocity.x));
 
             //Jump buffer
@@ -57,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
             //Handle jump inputs
             if (jumpBufferCount >= 0 && grounded)
             {
+                animator.SetBool("IsJumping", true);
                 body.velocity = new Vector2(body.velocity.x, maxJumpSpeed);
                 jumpBufferCount = 0;
             }
@@ -66,13 +69,14 @@ public class PlayerMovement : MonoBehaviour
                 body.velocity = new Vector2(body.velocity.x, minJumpSpeed);
             }
 
-            if (grounded)
+            if (grounded || SLASH_STATE == "SLASH")
                 animator.SetBool("IsJumping", false);
             else
                 animator.SetBool("IsJumping", true);
         }
-        if (SLASH_STATE == "SLASHING")
+        if (SLASH_STATE == "SLASH")
         {
+            animator.SetBool("IsSlashing", true);
             body.velocity = Vector2.zero;
             Slash();
             slashTimeCount += Time.deltaTime;
@@ -82,6 +86,8 @@ public class PlayerMovement : MonoBehaviour
                     body.gravityScale = 2.5f;
                 else
                     body.gravityScale = 5f;
+                animator.SetBool("IsSlashing", false);
+                slashDirection = Vector2.zero;
                 SLASH_STATE = "FALL";
             }
         }
@@ -95,16 +101,46 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         //Slashing
-        if (Input.GetMouseButtonDown(0) && SLASH_STATE != "SLASHING" && currentSlashAmount > 0)
+        if (Input.GetMouseButtonDown(0))
+        {
+            groundSlashBufferCount = groundSlashBufferLength;
+        }
+        else
+        {
+            groundSlashBufferCount -= Time.deltaTime;
+        }
+
+        if (groundSlashBufferCount >= 0 && SLASH_STATE != "SLASH" && currentSlashAmount > 0)
         {
             Vector2 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 angle = target - new Vector2(transform.position.x, transform.position.y);
-            slashDirection = angle.normalized;
+            Vector2 slashAngle = target - new Vector2(transform.position.x, transform.position.y);
+            slashDirection = slashAngle.normalized;
             body.gravityScale = 0;
             slashTimeCount = 0;
             currentSlashAmount--;
-            SLASH_STATE = "SLASHING";
+            SLASH_STATE = "SLASH";
         }
+
+        //Aimline rotation
+        if (SLASH_STATE != "SLASH" && currentSlashAmount > 0)
+        {
+            aimLine.SetActive(true);
+            Vector2 aimVector = Camera.main.WorldToScreenPoint(transform.position);
+            Vector2 aimPos = Input.mousePosition;
+            aimVector = aimPos - aimVector;
+            float aimAngle = Mathf.Atan2(aimVector.y, aimVector.x) * Mathf.Rad2Deg;
+
+            aimLine.transform.position = transform.position;
+            aimLine.transform.rotation = Quaternion.AngleAxis(aimAngle, Vector3.forward);
+        }
+        else
+        {
+            aimLine.SetActive(false);
+        }
+
+        //Sprite flipping
+        sprite.flipX = body.velocity.x < 0 || slashDirection.x * slashSpeed < 0;
+
     }
 
     private void Slash()
