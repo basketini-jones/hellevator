@@ -466,6 +466,9 @@ MonoBehaviour:
   minJumpSpeed: 5
   maxJumpSpeed: 15
   jumpBufferLength: 0.1
+  slashSpeed: 40
+  slashTime: 0.1
+  slashAmount: 1
 --- !u!95 &883667832
 Animator:
   serializedVersion: 3
