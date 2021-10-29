@@ -130,7 +130,8 @@ public class PlayerMovement : MonoBehaviour
 
         ManageGravity();
 
-        Debug.Log(currentSlashAmount);
+        if (currentSlashAmount > slashAmount)
+            currentSlashAmount = slashAmount;
     }
 
     private void Slash()
