@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
     private bool controlsEnabled;
 
     [SerializeField] private GameObject aimLine;
+    [SerializeField] private Text slashText;
     private Rigidbody2D body;
     private SpriteRenderer sprite;
     private Animator animator;
@@ -31,8 +33,8 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
         currentSlashAmount = slashAmount;
         STATE = "IDLE";
     }
@@ -54,6 +56,7 @@ public class PlayerMovement : MonoBehaviour
             if (slashTimeCount >= slashTime)
             {
                 animator.SetBool("IsSlashing", false);
+                body.velocity = Vector2.zero;
                 slashDirection = Vector2.zero;
                 STATE = "FALL";
             }
@@ -119,8 +122,8 @@ public class PlayerMovement : MonoBehaviour
             Vector2 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 slashAngle = target - new Vector2(transform.position.x, transform.position.y);
             slashDirection = slashAngle.normalized;
-            slashTimeCount = 0;
             currentSlashAmount--;
+            slashTimeCount = 0;
             RenderAimline(true);
             STATE = "SLASH";
         }
@@ -128,17 +131,21 @@ public class PlayerMovement : MonoBehaviour
         //Sprite flipping
         sprite.flipX = body.velocity.x < 0 || slashDirection.x * slashSpeed < 0;
 
-        ManageGravity();
-
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
+
+        slashText.text = $"Slashes: {currentSlashAmount}/1";
+
+        ManageGravity();
+
     }
 
     private void Slash()
     {
         animator.SetBool("IsSlashing", true);
-        body.velocity = Vector2.zero;
-        transform.position = new Vector2(transform.position.x, transform.position.y) + slashDirection * slashSpeed * Time.deltaTime;
+        //body.velocity = Vector2.zero;
+        //transform.position = new Vector2(transform.position.x, transform.position.y) + slashDirection * slashSpeed * Time.deltaTime;
+        body.velocity = slashDirection * slashSpeed;
     }
 
     private void ManageGravity()
