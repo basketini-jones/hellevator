@@ -21,11 +21,18 @@ public class PlayerMovement : MonoBehaviour
     private float groundSlashBufferCount;
     private Vector2 slashDirection;
 
+    [SerializeField] private int health;
+    [SerializeField] private float invincibilityFrames;
+    private int currentHealth;
+    private float currentInvincibilityFrames;
+    private bool vulnerable;
+
     private string STATE; //POTENTIAL STATE: "IDLE", "SLASH", "FALL"
     private bool controlsEnabled;
 
     [SerializeField] private GameObject aimLine;
     [SerializeField] private Text slashText;
+    [SerializeField] private Text healthText;
     private Rigidbody2D body;
     private SpriteRenderer sprite;
     private Animator animator;
@@ -36,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         currentSlashAmount = slashAmount;
+        currentHealth = health;
         STATE = "IDLE";
     }
 
@@ -72,7 +80,6 @@ public class PlayerMovement : MonoBehaviour
                 STATE = "IDLE";
             }
         }
-
         if (controlsEnabled)
         {
             // horizontal movement
@@ -128,13 +135,25 @@ public class PlayerMovement : MonoBehaviour
             STATE = "SLASH";
         }
 
+        if (currentInvincibilityFrames > 0)
+        {
+            currentInvincibilityFrames -= Time.deltaTime;
+            sprite.color = Color.red;
+        }
+        else
+        {
+            vulnerable = true;
+            sprite.color = Color.white;
+        }
+
         //Sprite flipping
         sprite.flipX = body.velocity.x < 0 || slashDirection.x * slashSpeed < 0;
 
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
 
-        slashText.text = $"Slashes: {currentSlashAmount}/1";
+        slashText.text = $"Slashes: {currentSlashAmount}/{slashAmount}";
+        healthText.text = $"Health: {currentHealth}/{health}";
 
         ManageGravity();
 
@@ -143,8 +162,6 @@ public class PlayerMovement : MonoBehaviour
     private void Slash()
     {
         animator.SetBool("IsSlashing", true);
-        //body.velocity = Vector2.zero;
-        //transform.position = new Vector2(transform.position.x, transform.position.y) + slashDirection * slashSpeed * Time.deltaTime;
         body.velocity = slashDirection * slashSpeed;
     }
 
@@ -192,6 +209,14 @@ public class PlayerMovement : MonoBehaviour
             {
                 currentSlashAmount++;
                 enemy.touched = true;
+            }
+            else if (STATE != "SLASH" && vulnerable)
+            {
+                currentInvincibilityFrames = invincibilityFrames;
+                currentHealth--;
+                body.velocity = Vector2.zero;
+                controlsEnabled = false;
+                vulnerable = false;
             }
         }
     }
