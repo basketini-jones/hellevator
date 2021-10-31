@@ -25,7 +25,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float invincibilityFrames;
     private int currentHealth;
     private float currentInvincibilityFrames;
-    private bool vulnerable;
+    private bool invincible;
+    private bool airStunned;
+    private bool hit;
 
     private string STATE; //POTENTIAL STATE: "IDLE", "SLASH", "FALL"
     private bool controlsEnabled;
@@ -80,6 +82,42 @@ public class PlayerMovement : MonoBehaviour
                 STATE = "IDLE";
             }
         }
+
+        if (hit)
+        {
+            currentInvincibilityFrames = invincibilityFrames;
+            currentHealth--;
+            invincible = true;
+            airStunned = true;
+            hit = false;
+            body.velocity = new Vector2(-body.velocity.x / 2, minJumpSpeed);
+        }
+
+        if (airStunned)
+        {
+            RenderAimline(false);
+            if (grounded)
+                airStunned = false;
+        }
+
+        if (!airStunned && currentInvincibilityFrames > 0)
+        {
+            currentInvincibilityFrames -= Time.deltaTime;
+            if (currentInvincibilityFrames <= 0)
+            {
+                invincible = false;
+                currentInvincibilityFrames = 0;
+            }
+        }
+
+        if (airStunned)
+            controlsEnabled = false;
+
+        if (invincible)
+            sprite.color = Color.red;
+        else
+            sprite.color = Color.white;
+
         if (controlsEnabled)
         {
             // horizontal movement
@@ -124,7 +162,7 @@ public class PlayerMovement : MonoBehaviour
         else
             groundSlashBufferCount -= Time.deltaTime;
 
-        if (groundSlashBufferCount >= 0 && STATE != "SLASH" && currentSlashAmount > 0)
+        if (groundSlashBufferCount >= 0 && STATE != "SLASH" && currentSlashAmount > 0 && controlsEnabled)
         {
             Vector2 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 slashAngle = target - new Vector2(transform.position.x, transform.position.y);
@@ -133,17 +171,6 @@ public class PlayerMovement : MonoBehaviour
             slashTimeCount = 0;
             RenderAimline(true);
             STATE = "SLASH";
-        }
-
-        if (currentInvincibilityFrames > 0)
-        {
-            currentInvincibilityFrames -= Time.deltaTime;
-            sprite.color = Color.red;
-        }
-        else
-        {
-            vulnerable = true;
-            sprite.color = Color.white;
         }
 
         //Sprite flipping
@@ -210,13 +237,9 @@ public class PlayerMovement : MonoBehaviour
                 currentSlashAmount++;
                 enemy.touched = true;
             }
-            else if (STATE != "SLASH" && vulnerable)
+            else if (STATE != "SLASH" && !invincible)
             {
-                currentInvincibilityFrames = invincibilityFrames;
-                currentHealth--;
-                body.velocity = Vector2.zero;
-                controlsEnabled = false;
-                vulnerable = false;
+                hit = true;
             }
         }
     }
