@@ -231,13 +231,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.tag == "Enemy")
         {
-            Enemy enemy = collision.gameObject.GetComponent<Enemy>();
-            if (!enemy.touched && STATE == "SLASH")
+            Enemy enemy = collision.gameObject.transform.parent.GetComponent<Enemy>();
+            if (!enemy.touched && STATE == "SLASH" && collision.gameObject.layer == 7) // 7: Hurtbox
             {
                 currentSlashAmount++;
                 enemy.touched = true;
             }
-            else if (STATE != "SLASH" && !invincible)
+            else if (STATE != "SLASH" && !invincible && collision.gameObject.layer == 6) // 6: Hitbox
             {
                 hit = true;
             }
