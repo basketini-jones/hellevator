@@ -182,6 +182,11 @@ public class PlayerMovement : MonoBehaviour
         slashText.text = $"Slashes: {currentSlashAmount}/{slashAmount}";
         healthText.text = $"Health: {currentHealth}/{health}";
 
+        if (currentHealth <= 0)
+        {
+            Destroy(this.gameObject);
+        }
+
         ManageGravity();
 
     }
