@@ -16,21 +16,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slashTime;
     [SerializeField] private float slashAmount;
     [SerializeField] private float groundSlashBufferLength;
-    private float currentSlashAmount;
     private float slashTimeCount;
     private float groundSlashBufferCount;
     private Vector2 slashDirection;
+    [System.NonSerialized] public float currentSlashAmount;
 
     [SerializeField] private int health;
     [SerializeField] private float invincibilityFrames;
     private int currentHealth;
     private float currentInvincibilityFrames;
-    private bool invincible;
     private bool airStunned;
-    private bool hit;
+    public bool invincible { get; private set; }
+    [System.NonSerialized] public bool hit;
 
-    private string STATE; //POTENTIAL STATE: "IDLE", "SLASH", "FALL"
     private bool controlsEnabled;
+    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "FALL"
 
     [SerializeField] private GameObject aimLine;
     [SerializeField] private Text slashText;
