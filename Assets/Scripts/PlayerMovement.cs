@@ -91,6 +91,7 @@ public class PlayerMovement : MonoBehaviour
             airStunned = true;
             hit = false;
             body.velocity = new Vector2(-body.velocity.x / 2, minJumpSpeed);
+            animator.SetTrigger("IsHurt");
         }
 
         if (airStunned)
@@ -152,9 +153,20 @@ public class PlayerMovement : MonoBehaviour
             }
 
             if (grounded || STATE == "SLASH")
+            {
                 animator.SetBool("IsJumping", false);
+                animator.SetBool("IsFalling", false);
+            }
+            else if (STATE == "FALL")
+            {
+                animator.SetBool("IsJumping", false);
+                animator.SetBool("IsFalling", true);
+            }
             else
+            {
                 animator.SetBool("IsJumping", true);
+                animator.SetBool("IsFalling", false);
+            }
         }
         //Slashing
         if (Input.GetMouseButtonDown(0))
@@ -174,7 +186,10 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //Sprite flipping
-        sprite.flipX = body.velocity.x < 0 || slashDirection.x * slashSpeed < 0;
+        if (body.velocity.x < 0 || slashDirection.x * slashSpeed < 0)
+            sprite.flipX = true;
+        else if (body.velocity.x > 0 || slashDirection.x * slashSpeed > 0)
+            sprite.flipX = false;
 
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
