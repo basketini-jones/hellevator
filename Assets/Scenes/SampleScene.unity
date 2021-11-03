@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 76874263}
   - component: {fileID: 76874264}
+  - component: {fileID: 76874265}
   m_Layer: 6
   m_Name: Hitbox
   m_TagString: Player
@@ -180,6 +181,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &76874265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76874262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3035fe954ff26eb4c84cd1ede420b9ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &181106264
 GameObject:
   m_ObjectHideFlags: 0
@@ -615,6 +628,7 @@ GameObject:
   m_Component:
   - component: {fileID: 829150024}
   - component: {fileID: 829150025}
+  - component: {fileID: 829150026}
   m_Layer: 7
   m_Name: Hurtbox
   m_TagString: Player
@@ -662,6 +676,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.3784547, y: 0.52413666}
   m_EdgeRadius: 0
+--- !u!114 &829150026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829150023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3035fe954ff26eb4c84cd1ede420b9ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1144156087
 GameObject:
   m_ObjectHideFlags: 0
@@ -909,6 +935,22 @@ PrefabInstance:
     - target: {fileID: 7509028734815932997, guid: d335665d6bed50540af311ed87c164b4, type: 3}
       propertyPath: m_Name
       value: Enemy1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7509028735236746388, guid: d335665d6bed50540af311ed87c164b4, type: 3}
+      propertyPath: m_Size.x
+      value: 0.68177426
+      objectReference: {fileID: 0}
+    - target: {fileID: 7509028735236746388, guid: d335665d6bed50540af311ed87c164b4, type: 3}
+      propertyPath: m_Size.y
+      value: 0.60562557
+      objectReference: {fileID: 0}
+    - target: {fileID: 7509028735236746388, guid: d335665d6bed50540af311ed87c164b4, type: 3}
+      propertyPath: m_Offset.x
+      value: -0.0027042031
+      objectReference: {fileID: 0}
+    - target: {fileID: 7509028735236746388, guid: d335665d6bed50540af311ed87c164b4, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.015310019
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d335665d6bed50540af311ed87c164b4, type: 3}

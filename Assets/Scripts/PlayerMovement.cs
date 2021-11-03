@@ -182,10 +182,10 @@ public class PlayerMovement : MonoBehaviour
         slashText.text = $"Slashes: {currentSlashAmount}/{slashAmount}";
         healthText.text = $"Health: {currentHealth}/{health}";
 
-        if (currentHealth <= 0)
+        /*if (currentHealth <= 0)
         {
             Destroy(this.gameObject);
-        }
+        }*/
 
         ManageGravity();
 
@@ -232,7 +232,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+/*    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Enemy")
         {
@@ -247,7 +247,7 @@ public class PlayerMovement : MonoBehaviour
                 hit = true;
             }
         }
-    }
+    }*/
 
     private void OnCollisionExit2D(Collision2D collision)
     {
