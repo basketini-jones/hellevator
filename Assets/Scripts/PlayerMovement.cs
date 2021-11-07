@@ -26,10 +26,6 @@ public class PlayerMovement : MonoBehaviour
     private int currentHealth;
     private float currentInvincibilityFrames;
     private bool airStunned;
-    private float spriteBlinkingTimer = 0.0f;
-    private float spriteBlinkingMiniDuration = 0.1f;
-    private float spriteBlinkingTotalTimer = 0.0f;
-    private float spriteBlinkingTotalDuration = 1.0f;
     private bool startBlinking = false;
     public bool invincible { get; private set; }
     [System.NonSerialized] public bool hit;
@@ -73,6 +69,7 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetBool("IsSlashing", false);
                 body.velocity = Vector2.zero;
                 slashDirection = Vector2.zero;
+                transform.rotation = new Quaternion(0,0,0,0);
                 STATE = "FALL";
             }
         }
@@ -202,6 +199,9 @@ public class PlayerMovement : MonoBehaviour
         else if (body.velocity.x > 0 || slashDirection.x * slashSpeed > 0)
             sprite.flipX = false;
 
+        if (STATE == "SLASH")
+            sprite.flipX = false;
+
         if (airStunned)
             sprite.flipX = !sprite.flipX;
 
@@ -221,6 +221,9 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("IsSlashing", true);
         body.velocity = slashDirection * slashSpeed;
+        Vector2 dir = body.velocity;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle - 45, Vector3.forward);
     }
 
     private void ManageGravity()
@@ -274,23 +277,6 @@ public class PlayerMovement : MonoBehaviour
             grounded = true;
         }
     }
-
-/*    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "Enemy")
-        {
-            Enemy enemy = collision.gameObject.transform.parent.GetComponent<Enemy>();
-            if (!enemy.touched && STATE == "SLASH" && collision.gameObject.layer == 7) // 7: Hurtbox
-            {
-                currentSlashAmount++;
-                enemy.touched = true;
-            }
-            else if (STATE != "SLASH" && !invincible && collision.gameObject.layer == 6) // 6: Hitbox
-            {
-                hit = true;
-            }
-        }
-    }*/
 
     private void OnCollisionExit2D(Collision2D collision)
     {
