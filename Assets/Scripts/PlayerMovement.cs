@@ -26,6 +26,11 @@ public class PlayerMovement : MonoBehaviour
     private int currentHealth;
     private float currentInvincibilityFrames;
     private bool airStunned;
+    private float spriteBlinkingTimer = 0.0f;
+    private float spriteBlinkingMiniDuration = 0.1f;
+    private float spriteBlinkingTotalTimer = 0.0f;
+    private float spriteBlinkingTotalDuration = 1.0f;
+    private bool startBlinking = false;
     public bool invincible { get; private set; }
     [System.NonSerialized] public bool hit;
 
@@ -91,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
             airStunned = true;
             hit = false;
             body.velocity = new Vector2(-body.velocity.x / 2, minJumpSpeed);
+            animator.SetBool("IsJumping", false);
             animator.SetTrigger("IsHurt");
         }
 
@@ -114,10 +120,15 @@ public class PlayerMovement : MonoBehaviour
         if (airStunned)
             controlsEnabled = false;
 
-        if (invincible)
-            sprite.color = Color.red;
+        if (invincible && !airStunned && currentHealth > 0)
+            startBlinking = true;
         else
-            sprite.color = Color.white;
+            startBlinking = false;
+
+        if (startBlinking)
+            SpriteBlinkingEffect();
+        else
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = true;   //make changes
 
         if (controlsEnabled)
         {
@@ -191,16 +202,16 @@ public class PlayerMovement : MonoBehaviour
         else if (body.velocity.x > 0 || slashDirection.x * slashSpeed > 0)
             sprite.flipX = false;
 
+        if (airStunned)
+            sprite.flipX = !sprite.flipX;
+
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
 
         slashText.text = $"Slashes: {currentSlashAmount}/{slashAmount}";
         healthText.text = $"Health: {currentHealth}/{health}";
 
-        /*if (currentHealth <= 0)
-        {
-            Destroy(this.gameObject);
-        }*/
+        animator.SetInteger("Health", currentHealth);
 
         ManageGravity();
 
@@ -238,6 +249,23 @@ public class PlayerMovement : MonoBehaviour
         else
             aimLine.SetActive(false);
     }
+
+    private void SpriteBlinkingEffect()
+    {
+        if (this.gameObject.GetComponent<SpriteRenderer>().enabled == true)
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = false;  //make changes
+        }
+        else
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = true;   //make changes
+        }
+    }
+
+    private void HandleDeath()
+        {
+            Destroy(this.gameObject);
+        }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
