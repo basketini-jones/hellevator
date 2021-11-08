@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerHitboxHandler : MonoBehaviour
 {
+    public GameManager game;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         PlayerMovement player = transform.parent.GetComponent<PlayerMovement>();
@@ -13,6 +15,7 @@ public class PlayerHitboxHandler : MonoBehaviour
             if (!enemy.touched && player.STATE == "SLASH" && collision.gameObject.layer == 7 && gameObject.layer == 6) // 7: Hurtbox
             {
                 player.currentSlashAmount++;
+                game.HandleEnemyDeath();
                 enemy.touched = true;
             }
             else if (player.STATE != "SLASH" && !player.invincible && collision.gameObject.layer == 6 && gameObject.layer == 7) // 6: Hitbox

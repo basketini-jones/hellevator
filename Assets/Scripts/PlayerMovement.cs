@@ -27,11 +27,12 @@ public class PlayerMovement : MonoBehaviour
     private float currentInvincibilityFrames;
     private bool airStunned;
     private bool startBlinking = false;
+    private bool deathSoundPlayed = false; //the existence of this variable is my greatest shame as a programmer
     public bool invincible { get; private set; }
     [System.NonSerialized] public bool hit;
 
     private bool controlsEnabled;
-    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "FALL"
+    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "FALL", "DEAD"
 
     [SerializeField] private GameObject aimLine;
     [SerializeField] private Text slashText;
@@ -39,15 +40,21 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D body;
     private SpriteRenderer sprite;
     private Animator animator;
+    private AudioManager audioManager;
+    private AudioSource walkLoopSource;
+    public GameManager game;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        walkLoopSource = GetComponent<AudioSource>();
+        audioManager = GetComponent<AudioManager>();
         currentSlashAmount = slashAmount;
         currentHealth = health;
         STATE = "IDLE";
+        walkLoopSource.enabled = false;
     }
 
     private void Update()
@@ -85,6 +92,13 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
+        if (STATE == "DEAD")
+        {
+            controlsEnabled = false;
+            RenderAimline(false);
+            body.velocity = Vector2.zero;
+        }
+
         if (hit)
         {
             currentInvincibilityFrames = invincibilityFrames;
@@ -92,6 +106,7 @@ public class PlayerMovement : MonoBehaviour
             invincible = true;
             airStunned = true;
             hit = false;
+            audioManager.Play("PlayerHurt");
             body.velocity = new Vector2(-body.velocity.x / 2, minJumpSpeed);
             animator.SetBool("IsJumping", false);
             animator.SetTrigger("IsHurt");
@@ -151,6 +166,7 @@ public class PlayerMovement : MonoBehaviour
             if (jumpBufferCount >= 0 && grounded)
             {
                 animator.SetBool("IsJumping", true);
+                audioManager.Play("PlayerJump");
                 body.velocity = new Vector2(body.velocity.x, maxJumpSpeed);
                 jumpBufferCount = 0;
             }
@@ -190,6 +206,7 @@ public class PlayerMovement : MonoBehaviour
             currentSlashAmount--;
             slashTimeCount = 0;
             RenderAimline(true);
+            audioManager.Play("PlayerSlash");
             STATE = "SLASH";
         }
 
@@ -205,6 +222,11 @@ public class PlayerMovement : MonoBehaviour
         if (airStunned)
             sprite.flipX = !sprite.flipX;
 
+        if (grounded && body.velocity.x != 0 & STATE == "IDLE")
+            walkLoopSource.enabled = true;
+        else
+            walkLoopSource.enabled = false;
+
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
 
@@ -212,6 +234,12 @@ public class PlayerMovement : MonoBehaviour
         healthText.text = $"Health: {currentHealth}/{health}";
 
         animator.SetInteger("Health", currentHealth);
+        if (!airStunned && currentHealth <= 0 && !deathSoundPlayed)
+        {
+            STATE = "DEAD";
+            game.HandlePlayerDeath();
+            deathSoundPlayed = true;
+        }
 
         ManageGravity();
 
