@@ -21,6 +21,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 slashDirection;
     [System.NonSerialized] public float currentSlashAmount;
 
+    public float maxCooldownTime;
+    private float cooldownTime;
+
     [SerializeField] private int health;
     [SerializeField] private float invincibilityFrames;
     private int currentHealth;
@@ -32,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
     [System.NonSerialized] public bool hit;
 
     private bool controlsEnabled;
-    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "FALL", "DEAD"
+    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "COOLDOWN", "FALL", "DEAD"
 
     [SerializeField] private GameObject aimLine;
     [SerializeField] private Text slashText;
@@ -77,6 +80,22 @@ public class PlayerMovement : MonoBehaviour
                 body.velocity = Vector2.zero;
                 slashDirection = Vector2.zero;
                 transform.rotation = new Quaternion(0,0,0,0);
+                currentInvincibilityFrames = maxCooldownTime;
+                STATE = "COOLDOWN";
+            }
+        }
+
+        if (STATE == "COOLDOWN")
+        {
+            controlsEnabled = true;
+            RenderAimline(false);
+            invincible = true;
+            currentInvincibilityFrames -= Time.deltaTime;
+            groundSlashBufferCount = -1;
+            if (currentInvincibilityFrames <= 0)
+            {
+                invincible = false;
+                currentInvincibilityFrames = 0;
                 STATE = "FALL";
             }
         }
@@ -198,7 +217,7 @@ public class PlayerMovement : MonoBehaviour
         else
             groundSlashBufferCount -= Time.deltaTime;
 
-        if (groundSlashBufferCount >= 0 && STATE != "SLASH" && currentSlashAmount > 0 && controlsEnabled)
+        if (groundSlashBufferCount >= 0 && STATE != "SLASH" && STATE != "COOLDOWN" && currentSlashAmount > 0 && controlsEnabled)
         {
             Vector2 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 slashAngle = target - new Vector2(transform.position.x, transform.position.y);
@@ -259,7 +278,7 @@ public class PlayerMovement : MonoBehaviour
         if (STATE == "SLASH")
             body.gravityScale = 0f;
         else if (STATE == "FALL" && currentSlashAmount > 0)
-            body.gravityScale = 2.5f;
+            body.gravityScale = 1.5f;
         else
             body.gravityScale = 5f;
     }

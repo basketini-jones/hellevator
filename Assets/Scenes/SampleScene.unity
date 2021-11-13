@@ -452,7 +452,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxWaveTime: 5
-  activateTimer: 0
   enemy: {fileID: 7747119351478813373, guid: 9ec9affae84291c45b4e707a6cfcfc01, type: 3}
   waveCountText: {fileID: 1735251192}
   waveTimerText: {fileID: 1248900816}
@@ -1207,7 +1206,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: b477cbf993b3de7428c8b6cf67d64793, type: 2}
     - target: {fileID: 7940023798694653543, guid: a9ff51cda46b09d4fb9d0b0081acadd7, type: 3}
+      propertyPath: maxCooldownTime
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7940023798694653543, guid: a9ff51cda46b09d4fb9d0b0081acadd7, type: 3}
       propertyPath: invincibilityFrames
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7940023798694653543, guid: a9ff51cda46b09d4fb9d0b0081acadd7, type: 3}
+      propertyPath: groundSlashBufferLength
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
