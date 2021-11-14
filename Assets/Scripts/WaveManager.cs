@@ -29,7 +29,7 @@ public class WaveManager : MonoBehaviour
         {
             for (int i = 0; i <= waveCount; i++)
             {
-                float spawnY = Random.Range(Camera.main.ScreenToWorldPoint(new Vector2(0, 420)).y, Camera.main.ScreenToWorldPoint(new Vector2(0, 1000)).y);
+                float spawnY = Random.Range(Camera.main.ScreenToWorldPoint(new Vector2(0, Screen.height / 3)).y, Camera.main.ScreenToWorldPoint(new Vector2(0, Screen.height)).y);
                 float spawnX = Random.Range(Camera.main.ScreenToWorldPoint(new Vector2(0, 0)).x, Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, 0)).x);
 
                 Instantiate(enemy, new Vector2(spawnX, spawnY), new Quaternion(0, 0, 0, 0));
