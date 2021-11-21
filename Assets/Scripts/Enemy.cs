@@ -28,6 +28,8 @@ public class Enemy : MonoBehaviour
         direction = Random.Range(0, 1);
         if (direction == 0) direction = -1;
 
+        body.gravityScale = 0f;
+
     }
 
     // Update is called once per frame

@@ -724,6 +724,7 @@ MonoBehaviour:
   enemies:
   - {fileID: 7747119351478813373, guid: 9ec9affae84291c45b4e707a6cfcfc01, type: 3}
   - {fileID: 7747119351478813373, guid: 777fb24435916bc408db1cb7c60f4635, type: 3}
+  - {fileID: 7747119351478813373, guid: 24b05b33287bbc94382796990f44d812, type: 3}
   waveCountText: {fileID: 1735251192}
   waveTimerText: {fileID: 1248900816}
 --- !u!1 &457722006
