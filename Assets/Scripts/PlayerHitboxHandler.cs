@@ -12,15 +12,17 @@ public class PlayerHitboxHandler : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             Enemy enemy = collision.gameObject.transform.parent.GetComponent<Enemy>();
-            if (!enemy.touched && player.STATE == "SLASH" && collision.gameObject.layer == 7 && gameObject.layer == 6 && enemy.vulnerable) // 7: Hurtbox
+            if (!enemy.hurt && player.STATE == "SLASH" && collision.gameObject.layer == 7 && gameObject.layer == 6 && enemy.vulnerable) // 7: Hurtbox
             {
                 player.currentSlashAmount++;
                 game.HandleEnemyDeath();
-                enemy.touched = true;
+                enemy.hurt = true;
             }
-            else if (player.STATE != "SLASH" && !player.invincible && collision.gameObject.layer == 6 && gameObject.layer == 7 && enemy.vulnerable) // 6: Hitbox
+            else if (player.STATE != "SLASH" && collision.gameObject.layer == 6 && gameObject.layer == 7 && enemy.vulnerable) // 6: Hitbox
             {
-                player.hit = true;
+                enemy.hit = true;
+                if (!player.invincible)
+                    player.hurt = true;
             }
         }
     }

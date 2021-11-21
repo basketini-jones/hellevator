@@ -32,7 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private bool startBlinking = false;
     private bool deathSoundPlayed = false; //the existence of this variable is my greatest shame as a programmer
     public bool invincible { get; private set; }
-    [System.NonSerialized] public bool hit;
+    [System.NonSerialized] public bool hurt;
 
     private bool controlsEnabled;
     public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "COOLDOWN", "FALL", "DEAD"
@@ -118,13 +118,13 @@ public class PlayerMovement : MonoBehaviour
             body.velocity = Vector2.zero;
         }
 
-        if (hit)
+        if (hurt)
         {
             currentInvincibilityFrames = invincibilityFrames;
             currentHealth--;
             invincible = true;
             airStunned = true;
-            hit = false;
+            hurt = false;
             audioManager.Play("PlayerHurt");
             body.velocity = new Vector2(-body.velocity.x / 2, minJumpSpeed);
             animator.SetBool("IsJumping", false);
