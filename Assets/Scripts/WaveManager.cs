@@ -25,7 +25,7 @@ public class WaveManager : MonoBehaviour
             waveTime -= Time.deltaTime;
         }
         
-        if (waveTime <= 0 || GameObject.FindGameObjectsWithTag("Enemy").Length == 0)
+        if ((waveTime <= 0 || GameObject.FindGameObjectsWithTag("Enemy").Length == 0) && GameObject.FindGameObjectsWithTag("Player").Length > 0)
         {
             for (int i = 0; i <= waveCount; i++)
             {
