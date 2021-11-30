@@ -318,6 +318,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleDeath()
         {
+        if (!airStunned)
             Destroy(this.gameObject);
         }
 

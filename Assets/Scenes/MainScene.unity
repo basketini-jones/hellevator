@@ -998,6 +998,9 @@ MonoBehaviour:
   - {fileID: 7747119351478813373, guid: 9ec9affae84291c45b4e707a6cfcfc01, type: 3}
   - {fileID: 7747119351478813373, guid: 777fb24435916bc408db1cb7c60f4635, type: 3}
   - {fileID: 7747119351478813373, guid: 24b05b33287bbc94382796990f44d812, type: 3}
+  - {fileID: 7747119351478813373, guid: 5a06520cb85b565498ef81e76566080f, type: 3}
+  - {fileID: 7747119351478813373, guid: ab7d164fa299cf141b4178736f14e38f, type: 3}
+  - {fileID: 7747119351478813373, guid: da62fb530db559147983b39d0eab6534, type: 3}
   waveCountText: {fileID: 1735251192}
   waveTimerText: {fileID: 1248900816}
 --- !u!82 &423905515
@@ -1336,7 +1339,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 3.5862844, y: -0.044381976}
+  m_Offset: {x: 3.5862844, y: 1.2871442}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1347,7 +1350,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.20655012, y: 3.6096432}
+  m_Size: {x: 0.20655012, y: 6.2726946}
   m_EdgeRadius: 0
 --- !u!212 &576463709
 SpriteRenderer:
@@ -1844,7 +1847,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -3.563851, y: -0.044381976}
+  m_Offset: {x: -3.563851, y: 1.2617009}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1855,7 +1858,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.25696325, y: 3.6096432}
+  m_Size: {x: 0.25696325, y: 6.221809}
   m_EdgeRadius: 0
 --- !u!212 &1381469099
 SpriteRenderer:

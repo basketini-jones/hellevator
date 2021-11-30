@@ -39,7 +39,6 @@ public class GameManager : MonoBehaviour
     public void HandlePlayerDeath()
     {
         audioManager.Play("PlayerDeath");
-        audioManager.Play("GameOver");
         restartButton.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
         black.gameObject.SetActive(true);

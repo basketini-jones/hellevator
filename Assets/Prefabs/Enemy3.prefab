@@ -184,7 +184,10 @@ MonoBehaviour:
   vulnerable: 0
   EnableGravity: 0
   MoveHorizontally: 1
-  MoveSpeed: 5
+  HorizontalMoveSpeed: 5
+  MoveSine: 0
+  VerticalMaxSpeed: 0
+  VerticalAcceleration: 0
 --- !u!95 &2416258389128787688
 Animator:
   serializedVersion: 3

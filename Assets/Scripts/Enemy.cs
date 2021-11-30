@@ -9,8 +9,16 @@ public class Enemy : MonoBehaviour
     [HideInInspector] public bool vulnerable;
     public bool EnableGravity;
     public bool MoveHorizontally;
-    public float MoveSpeed;
-    private int direction;
+    public float HorizontalMoveSpeed;
+    public bool MoveSine;
+    public float VerticalMaxSpeed;
+    public float VerticalAcceleration;
+    public bool PursuePlayer;
+    public float PursueSpeed;
+    private GameObject player;
+    private float verticalMoveSpeed;
+    private int horizontalDirection;
+    private int verticalDirection;
 
     private Rigidbody2D body;
     private Animator animator;
@@ -25,8 +33,22 @@ public class Enemy : MonoBehaviour
         hurt = false;
         vulnerable = false;
 
-        direction = Random.Range(0, 1);
-        if (direction == 0) direction = -1;
+        if (MoveHorizontally)
+        {
+            horizontalDirection = Random.Range(0, 1);
+            if (horizontalDirection == 0) horizontalDirection = -1;
+        }
+        if (MoveSine)
+        {
+            verticalMoveSpeed = 0;
+            verticalDirection = Random.Range(0, 1);
+            if (verticalDirection == 0) verticalDirection = -1;
+        }
+        if (PursuePlayer)
+        {
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            player = players[0];
+        }
 
         body.gravityScale = 0f;
 
@@ -48,11 +70,27 @@ public class Enemy : MonoBehaviour
 
         if (MoveHorizontally && vulnerable)
         {
-            body.velocity = new Vector2(MoveSpeed * direction, body.velocity.y);
-            if (direction < 0)
+            body.velocity = new Vector2(HorizontalMoveSpeed * horizontalDirection, body.velocity.y);
+            if (horizontalDirection < 0)
                 sprite.flipX = true;
             else
                 sprite.flipX = false;
+        }
+        if (MoveSine && vulnerable)
+        {
+            if (verticalMoveSpeed >= VerticalMaxSpeed || verticalMoveSpeed <= -VerticalMaxSpeed)
+            {
+                verticalDirection *= -1;
+            }
+            verticalMoveSpeed += VerticalAcceleration * verticalDirection;
+            body.velocity = new Vector2(body.velocity.x, verticalMoveSpeed);
+        }
+        if (PursuePlayer && vulnerable)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, PursueSpeed);
+            Vector2 aimVector = player.transform.position - transform.position;
+            float aimAngle = Mathf.Atan2(aimVector.y, aimVector.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(aimAngle, Vector3.forward);
         }
     }
 
@@ -72,7 +110,7 @@ public class Enemy : MonoBehaviour
     {
         if (collision.gameObject.tag == "Untagged")
         {
-            direction = -direction;
+            horizontalDirection = -horizontalDirection;
         }
     }
 }
