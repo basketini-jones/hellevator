@@ -9,12 +9,21 @@ public class GameManager : MonoBehaviour
     private AudioManager audioManager;
     public Button restartButton;
     public Button quitButton;
+    public SpriteRenderer black;
+    private AudioSource music;
 
     private void Awake()
     {
         audioManager = gameObject.GetComponent<AudioManager>();
         restartButton.gameObject.SetActive(false);
         quitButton.gameObject.SetActive(false);
+        black.gameObject.SetActive(false);
+        AudioSource[] audioSources = gameObject.GetComponents<AudioSource>();
+        foreach (AudioSource audioSource in audioSources)
+        {
+            if (audioSource.loop)
+                music = audioSource;
+        }
     }
 
     // Update is called once per frame
@@ -30,8 +39,11 @@ public class GameManager : MonoBehaviour
     public void HandlePlayerDeath()
     {
         audioManager.Play("PlayerDeath");
+        audioManager.Play("GameOver");
         restartButton.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
+        black.gameObject.SetActive(true);
+        music.mute = true;
     }
 
     public void HandleEnemyDeath()

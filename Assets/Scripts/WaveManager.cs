@@ -9,6 +9,8 @@ public class WaveManager : MonoBehaviour
     public float maxWaveTime;
     private float waveTime;
 
+    private AudioManager audioManager;
+
     [SerializeField] private GameObject[] enemies;
     [SerializeField] private Text waveCountText;
     [SerializeField] private Text waveTimerText;
@@ -16,6 +18,7 @@ public class WaveManager : MonoBehaviour
     private void Awake()
     {
         waveCount = 0;
+        audioManager = gameObject.GetComponent<AudioManager>();
     }
 
     private void Update()
@@ -34,12 +37,14 @@ public class WaveManager : MonoBehaviour
 
                 int selectedEnemy = Random.Range(0, enemies.Length);
                 Instantiate(enemies[selectedEnemy], new Vector2(spawnX, spawnY), new Quaternion(0, 0, 0, 0));
+
+                audioManager.Play("NewWave");
             }
             waveCount++;
             waveTime = maxWaveTime;
         }
 
-        waveCountText.text = $"Wave: {waveCount}";
-        waveTimerText.text = $"Time: {Mathf.Floor(waveTime)+1}";
+        waveCountText.text = $"{waveCount}";
+        waveTimerText.text = $"{Mathf.Floor(waveTime)+1}";
     }
 }

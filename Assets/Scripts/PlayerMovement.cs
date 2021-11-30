@@ -38,8 +38,8 @@ public class PlayerMovement : MonoBehaviour
     public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "COOLDOWN", "FALL", "DEAD"
 
     [SerializeField] private GameObject aimLine;
-    [SerializeField] private Text slashText;
-    [SerializeField] private Text healthText;
+    [SerializeField] private Animator slashAnimator;
+    [SerializeField] private Animator healthAnimator;
     private Rigidbody2D body;
     private SpriteRenderer sprite;
     private Animator animator;
@@ -249,8 +249,12 @@ public class PlayerMovement : MonoBehaviour
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
 
-        slashText.text = $"Slashes: {currentSlashAmount}/{slashAmount}";
-        healthText.text = $"Health: {currentHealth}/{health}";
+        if (currentSlashAmount <= 0)
+            slashAnimator.SetBool("Empty", true);
+        else
+            slashAnimator.SetBool("Empty", false);
+
+        healthAnimator.SetInteger("Health", currentHealth);
 
         animator.SetInteger("Health", currentHealth);
         if (!airStunned && currentHealth <= 0 && !deathSoundPlayed)
