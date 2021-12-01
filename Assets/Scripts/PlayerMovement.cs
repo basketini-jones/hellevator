@@ -21,32 +21,43 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 slashDirection;
     [System.NonSerialized] public float currentSlashAmount;
 
+    public float maxCooldownTime;
+    private float cooldownTime;
+
     [SerializeField] private int health;
     [SerializeField] private float invincibilityFrames;
     private int currentHealth;
     private float currentInvincibilityFrames;
     private bool airStunned;
+    private bool startBlinking = false;
+    private bool deathSoundPlayed = false; //the existence of this variable is my greatest shame as a programmer
     public bool invincible { get; private set; }
-    [System.NonSerialized] public bool hit;
+    [System.NonSerialized] public bool hurt;
 
     private bool controlsEnabled;
-    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "FALL"
+    public string STATE { get; private set; } //POTENTIAL STATE: "IDLE", "SLASH", "COOLDOWN", "FALL", "DEAD"
 
     [SerializeField] private GameObject aimLine;
-    [SerializeField] private Text slashText;
-    [SerializeField] private Text healthText;
+    [SerializeField] private Animator slashAnimator;
+    [SerializeField] private Animator healthAnimator;
     private Rigidbody2D body;
     private SpriteRenderer sprite;
     private Animator animator;
+    private AudioManager audioManager;
+    private AudioSource walkLoopSource;
+    public GameManager game;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        walkLoopSource = GetComponent<AudioSource>();
+        audioManager = GetComponent<AudioManager>();
         currentSlashAmount = slashAmount;
         currentHealth = health;
         STATE = "IDLE";
+        walkLoopSource.enabled = false;
     }
 
     private void Update()
@@ -68,6 +79,23 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetBool("IsSlashing", false);
                 body.velocity = Vector2.zero;
                 slashDirection = Vector2.zero;
+                transform.rotation = new Quaternion(0,0,0,0);
+                currentInvincibilityFrames = maxCooldownTime;
+                STATE = "COOLDOWN";
+            }
+        }
+
+        if (STATE == "COOLDOWN")
+        {
+            controlsEnabled = true;
+            RenderAimline(false);
+            invincible = true;
+            currentInvincibilityFrames -= Time.deltaTime;
+            groundSlashBufferCount = -1;
+            if (currentInvincibilityFrames <= 0)
+            {
+                invincible = false;
+                currentInvincibilityFrames = 0;
                 STATE = "FALL";
             }
         }
@@ -83,14 +111,23 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (hit)
+        if (STATE == "DEAD")
+        {
+            controlsEnabled = false;
+            RenderAimline(false);
+            body.velocity = Vector2.zero;
+        }
+
+        if (hurt)
         {
             currentInvincibilityFrames = invincibilityFrames;
             currentHealth--;
             invincible = true;
             airStunned = true;
-            hit = false;
+            hurt = false;
+            audioManager.Play("PlayerHurt");
             body.velocity = new Vector2(-body.velocity.x / 2, minJumpSpeed);
+            animator.SetBool("IsJumping", false);
             animator.SetTrigger("IsHurt");
         }
 
@@ -114,10 +151,15 @@ public class PlayerMovement : MonoBehaviour
         if (airStunned)
             controlsEnabled = false;
 
-        if (invincible)
-            sprite.color = Color.red;
+        if (invincible && !airStunned && currentHealth > 0)
+            startBlinking = true;
         else
-            sprite.color = Color.white;
+            startBlinking = false;
+
+        if (startBlinking)
+            SpriteBlinkingEffect();
+        else
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = true;   //make changes
 
         if (controlsEnabled)
         {
@@ -143,6 +185,7 @@ public class PlayerMovement : MonoBehaviour
             if (jumpBufferCount >= 0 && grounded)
             {
                 animator.SetBool("IsJumping", true);
+                audioManager.Play("PlayerJump");
                 body.velocity = new Vector2(body.velocity.x, maxJumpSpeed);
                 jumpBufferCount = 0;
             }
@@ -174,7 +217,7 @@ public class PlayerMovement : MonoBehaviour
         else
             groundSlashBufferCount -= Time.deltaTime;
 
-        if (groundSlashBufferCount >= 0 && STATE != "SLASH" && currentSlashAmount > 0 && controlsEnabled)
+        if (groundSlashBufferCount >= 0 && STATE != "SLASH" && STATE != "COOLDOWN" && currentSlashAmount > 0 && controlsEnabled)
         {
             Vector2 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 slashAngle = target - new Vector2(transform.position.x, transform.position.y);
@@ -182,6 +225,7 @@ public class PlayerMovement : MonoBehaviour
             currentSlashAmount--;
             slashTimeCount = 0;
             RenderAimline(true);
+            audioManager.Play("PlayerSlash");
             STATE = "SLASH";
         }
 
@@ -191,16 +235,34 @@ public class PlayerMovement : MonoBehaviour
         else if (body.velocity.x > 0 || slashDirection.x * slashSpeed > 0)
             sprite.flipX = false;
 
+        if (STATE == "SLASH")
+            sprite.flipX = false;
+
+        if (airStunned)
+            sprite.flipX = !sprite.flipX;
+
+        if (grounded && body.velocity.x != 0 & STATE == "IDLE")
+            walkLoopSource.enabled = true;
+        else
+            walkLoopSource.enabled = false;
+
         if (currentSlashAmount > slashAmount)
             currentSlashAmount = slashAmount;
 
-        slashText.text = $"Slashes: {currentSlashAmount}/{slashAmount}";
-        healthText.text = $"Health: {currentHealth}/{health}";
+        if (currentSlashAmount <= 0)
+            slashAnimator.SetBool("Empty", true);
+        else
+            slashAnimator.SetBool("Empty", false);
 
-        /*if (currentHealth <= 0)
+        healthAnimator.SetInteger("Health", currentHealth);
+
+        animator.SetInteger("Health", currentHealth);
+        if (!airStunned && currentHealth <= 0 && !deathSoundPlayed)
         {
-            Destroy(this.gameObject);
-        }*/
+            STATE = "DEAD";
+            game.HandlePlayerDeath();
+            deathSoundPlayed = true;
+        }
 
         ManageGravity();
 
@@ -210,6 +272,9 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("IsSlashing", true);
         body.velocity = slashDirection * slashSpeed;
+        Vector2 dir = body.velocity;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle - 45, Vector3.forward);
     }
 
     private void ManageGravity()
@@ -217,7 +282,7 @@ public class PlayerMovement : MonoBehaviour
         if (STATE == "SLASH")
             body.gravityScale = 0f;
         else if (STATE == "FALL" && currentSlashAmount > 0)
-            body.gravityScale = 2.5f;
+            body.gravityScale = 1.5f;
         else
             body.gravityScale = 5f;
     }
@@ -239,6 +304,24 @@ public class PlayerMovement : MonoBehaviour
             aimLine.SetActive(false);
     }
 
+    private void SpriteBlinkingEffect()
+    {
+        if (this.gameObject.GetComponent<SpriteRenderer>().enabled == true)
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = false;  //make changes
+        }
+        else
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = true;   //make changes
+        }
+    }
+
+    private void HandleDeath()
+        {
+        if (!airStunned)
+            Destroy(this.gameObject);
+        }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ground")
@@ -246,23 +329,6 @@ public class PlayerMovement : MonoBehaviour
             grounded = true;
         }
     }
-
-/*    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "Enemy")
-        {
-            Enemy enemy = collision.gameObject.transform.parent.GetComponent<Enemy>();
-            if (!enemy.touched && STATE == "SLASH" && collision.gameObject.layer == 7) // 7: Hurtbox
-            {
-                currentSlashAmount++;
-                enemy.touched = true;
-            }
-            else if (STATE != "SLASH" && !invincible && collision.gameObject.layer == 6) // 6: Hitbox
-            {
-                hit = true;
-            }
-        }
-    }*/
 
     private void OnCollisionExit2D(Collision2D collision)
     {
