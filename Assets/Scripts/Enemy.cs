@@ -78,16 +78,16 @@ public class Enemy : MonoBehaviour
         }
         if (MoveSine && vulnerable)
         {
-            if (verticalMoveSpeed >= VerticalMaxSpeed || verticalMoveSpeed <= -VerticalMaxSpeed)
+            if (Mathf.Abs(verticalMoveSpeed) >= VerticalMaxSpeed)
             {
                 verticalDirection *= -1;
             }
-            verticalMoveSpeed += VerticalAcceleration * verticalDirection;
+            verticalMoveSpeed += VerticalAcceleration * verticalDirection * Time.fixedDeltaTime;
             body.velocity = new Vector2(body.velocity.x, verticalMoveSpeed);
         }
-        if (PursuePlayer && vulnerable)
+        if (PursuePlayer && vulnerable && player != null)
         {
-            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, PursueSpeed);
+            body.velocity = Vector3.Normalize(player.transform.position - transform.position) * PursueSpeed;
             Vector2 aimVector = player.transform.position - transform.position;
             float aimAngle = Mathf.Atan2(aimVector.y, aimVector.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(aimAngle, Vector3.forward);

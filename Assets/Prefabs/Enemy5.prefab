@@ -187,7 +187,9 @@ MonoBehaviour:
   HorizontalMoveSpeed: 3
   MoveSine: 1
   VerticalMaxSpeed: 5
-  VerticalAcceleration: 0.05
+  VerticalAcceleration: 5
+  PursuePlayer: 0
+  PursueSpeed: 0
 --- !u!95 &2416258389128787688
 Animator:
   serializedVersion: 3

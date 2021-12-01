@@ -14,6 +14,7 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private GameObject[] enemies;
     [SerializeField] private Text waveCountText;
     [SerializeField] private Text waveTimerText;
+    [SerializeField] private BoxCollider2D spawnZone;
 
     private void Awake()
     {
@@ -32,8 +33,9 @@ public class WaveManager : MonoBehaviour
         {
             for (int i = 0; i <= waveCount; i++)
             {
-                float spawnY = Random.Range(Camera.main.ScreenToWorldPoint(new Vector2(0, Screen.height / 3)).y, Camera.main.ScreenToWorldPoint(new Vector2(0, Screen.height)).y);
-                float spawnX = Random.Range(Camera.main.ScreenToWorldPoint(new Vector2(0, 0)).x, Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, 0)).x);
+                Bounds bounds = spawnZone.bounds;
+                float spawnY = Random.Range(bounds.min.y, bounds.max.y);
+                float spawnX = Random.Range(bounds.min.x, bounds.max.x);
 
                 int selectedEnemy = Random.Range(0, enemies.Length);
                 Instantiate(enemies[selectedEnemy], new Vector2(spawnX, spawnY), new Quaternion(0, 0, 0, 0));

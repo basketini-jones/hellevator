@@ -189,7 +189,7 @@ MonoBehaviour:
   VerticalMaxSpeed: 0
   VerticalAcceleration: 0
   PursuePlayer: 1
-  PursueSpeed: 0.01
+  PursueSpeed: 3
 --- !u!95 &2416258389128787688
 Animator:
   serializedVersion: 3
